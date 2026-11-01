@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hemodialisa Companion - Manajemen Cairan & Edukasi HD</title>
+<script src="https://cdn.tailwindcss.com/3.4.17"></script>
+<style>
+:root {
+  --bg: #f7fbfb; --fg: #1e2a2e; --pri: #1f8a82; --prif: #ffffff;
+  --sec: #e8f1f3; --acc: #c77a0a; --accbg: #f5a623; --mut: #5c6b70;
+  --bd: #d9e5e8; --card: #ffffff; --ok: #2f9e6e; --dg: #c0392b; --fs: 16px;
+}
+@media(prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1a1f; --fg: #e4eeee; --pri: #4fd1c5; --prif: #0f1a1f;
+    --sec: #18262d; --acc: #f5b24d; --mut: #a3b3b8; --bd: #25363e;
+    --card: #15232a; --ok: #5ad19a; --dg: #ff8a7a; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1a1f; --fg: #e4eeee; --pri: #4fd1c5; --prif: #0f1a1f;
+  --sec: #18262d; --acc: #f5b24d; --mut: #a3b3b8; --bd: #25363e;
+  --card: #15232a; --ok: #5ad19a; --dg: #ff8a7a; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: var(--fs); line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { line-height: 1.25; margin: 0 0 .5rem; font-weight: 700; }
+h1 { font-size: 1.75em; } h2 { font-size: 1.35em; } h3 { font-size: 1.1em; }
+p { margin: .4rem 0; }
+.mut { color: var(--mut); font-size: .88em; }
+.app { display: flex; min-height: 100vh; }
+nav.side {
+  width: 250px; flex: none; border-right: 1px solid var(--bd);
+  padding: 20px 14px; position: sticky; top: 0; height: 100vh;
+  overflow-y: auto; background: var(--card); z-index: 10;
+}
+.brand { font-weight: 700; font-size: 1.05em; padding: 4px 10px 16px; display: flex; gap: 8px; align-items: center; }
+nav a {
+  display: flex; gap: 10px; align-items: center; padding: 9px 12px;
+  border-radius: 12px; color: var(--fg); text-decoration: none; font-size: .92em;
+  transition: background .15s ease;
+}
+nav a:hover { background: var(--sec); }
+nav a.on { background: var(--pri); color: var(--prif); font-weight: 600; }
+nav .tools { margin-top: 16px; border-top: 1px solid var(--bd); padding-top: 12px; display: flex; gap: 6px; flex-wrap: wrap; }
+main { flex: 1; min-width: 0; max-width: 920px; padding: 48px 24px 96px; margin: 0 auto; animation: in .3s ease-out; }
+@keyframes in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.card {
+  background: var(--card); border: 1px solid var(--bd); border-radius: 16px;
+  padding: 18px; box-shadow: 0 4px 24px rgba(0,0,0,.04); margin-bottom: 14px;
+}
+.grid-cols-auto { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+.stat .v { font-size: 1.5em; font-weight: 700; font-variant-numeric: tabular-nums; }
+button, select, input, textarea { font: inherit; color: inherit; }
+.btn {
+  background: var(--accbg); color: #1e2a2e; border: 0; border-radius: 999px;
+  padding: 10px 20px; font-weight: 600; cursor: pointer; transition: transform .15s, box-shadow .15s;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(0,0,0,.15); }
+.btn:active { transform: scale(.98); }
+.ghost { background: var(--sec); border: 1px solid var(--bd); border-radius: 10px; padding: 6px 12px; cursor: pointer; font-size: .88em; }
+:focus-visible { outline: 3px solid var(--pri); outline-offset: 2px; }
+input, select, textarea { background: var(--sec); border: 1px solid var(--bd); border-radius: 10px; padding: 10px 12px; width: 100%; }
+details { border-top: 1px solid var(--bd); margin-top: 10px; padding-top: 8px; }
+summary { cursor: pointer; color: var(--pri); font-weight: 600; padding: 4px 0; }
+.chk { display: flex; gap: 12px; align-items: center; padding: 10px 8px; border-radius: 12px; cursor: pointer; }
+.chk:hover { background: var(--sec); }
+.chk input { width: 20px; height: 20px; flex: none; accent-color: var(--pri); }
+.ring { width: 84px; height: 84px; flex: none; }
+.pill { display: inline-block; background: var(--sec); border-radius: 999px; padding: 2px 10px; font-size: .8em; color: var(--mut); font-weight: 600; }
+.warn { border-left: 4px solid var(--dg); }
+.good { border-left: 4px solid var(--ok); }
+.caution { border-left: 4px solid var(--acc); }
+.sup { margin-top: 36px; font-size: .85em; color: var(--mut); text-align: center; border-top: 1px solid var(--bd); padding-top: 16px; }
+.chat { display: flex; flex-direction: column; gap: 12px; min-height: 250px; max-height: 480px; overflow-y: auto; padding: 8px; }
+.m { max-width: 88%; padding: 11px 15px; border-radius: 16px; white-space: pre-wrap; word-break: break-word; font-size: .95em; }
+.m.u { align-self: flex-end; background: var(--pri); color: var(--prif); border-bottom-right-radius: 4px; }
+.m.a { align-self: flex-start; background: var(--sec); border-bottom-left-radius: 4px; border: 1px solid var(--bd); }
+.dots span { display: inline-block; width: 8px; height: 8px; margin: 0 2px; border-radius: 50%; background: var(--mut); animation: p 1s infinite; }
+.dots span:nth-child(2) { animation-delay: .15s; }
+.dots span:nth-child(3) { animation-delay: .3s; }
+@keyframes p { 0%,100%{opacity:.3} 50%{opacity:1} }
+.sug { display: block; width: 100%; text-align: left; margin-bottom: 6px; background: var(--sec); border: 1px solid var(--bd); border-radius: 12px; padding: 9px 13px; cursor: pointer; font-size: .88em; transition: background .15s; }
+.sug:hover { background: var(--bd); }
+dialog { border: 1px solid var(--bd); border-radius: 18px; background: var(--card); color: var(--fg); max-width: 440px; width: 92%; padding: 20px; }
+dialog::backdrop { background: rgba(0,0,0,.5); backdrop-filter: blur(2px); }
+.tg { position: fixed; top: calc(10px + env(safe-area-inset-top,0px)); right: 12px; z-index: 30; display: flex; gap: 2px; background: var(--card); border: 1px solid var(--bd); border-radius: 999px; padding: 3px; box-shadow: 0 2px 10px rgba(0,0,0,.12); }
+.tg button { border: 0; background: transparent; border-radius: 999px; padding: 6px 10px; cursor: pointer; font-size: .9em; }
+.tg button[aria-pressed=true] { background: var(--pri); color: var(--prif); }
+.table-custom { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: .9em; }
+.table-custom th, .table-custom td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--bd); }
+.table-custom th { background: var(--sec); font-weight: 600; color: var(--fg); }
+
+.c-dg{color:var(--dg)}.c-ok{color:var(--ok)}.c-pri{color:var(--pri)}
+.t-dg,.t-ok,.t-pri{border-radius:12px;padding:12px}
+.t-dg{background:color-mix(in srgb,var(--dg) 10%,transparent);border:1px solid color-mix(in srgb,var(--dg) 30%,transparent)}
+.t-ok{background:color-mix(in srgb,var(--ok) 10%,transparent);border:1px solid color-mix(in srgb,var(--ok) 30%,transparent)}
+.t-pri{background:color-mix(in srgb,var(--pri) 10%,transparent);border:1px solid color-mix(in srgb,var(--pri) 30%,transparent)}
+a.btn{text-decoration:none;color:#1e2a2e}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media print{nav.side,.tg,.btn,.ghost{display:none!important}main{max-width:none;padding:0}}
+@media(max-width: 768px) {
+  .app { display: block; }
+  nav.side {
+    position: fixed; inset: auto 0 0 0; top: auto; width: 100%; height: auto;
+    display: flex; gap: 2px; padding: 6px 6px calc(6px + env(safe-area-inset-bottom,0px));
+    border: 0; border-top: 1px solid var(--bd); overflow-x: auto; z-index: 20;
+    box-shadow: 0 -4px 16px rgba(0,0,0,.08);
+  }
+  .brand, nav .tools { display: none; }
+  nav a { flex-direction: column; gap: 2px; padding: 6px 10px; font-size: .72em; white-space: nowrap; flex: 1; text-align: center; justify-content: center; }
+  main { padding: 56px 14px 110px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="side" id="nav" aria-label="Navigasi utama"></nav>
+  <main id="main" tabindex="-1"></main>
+</div>
+
+<div class="tg" id="tg" role="group" aria-label="Pilihan tema"></div>
+
+<dialog id="onb">
+  <form method="dialog" onsubmit="return false">
+    <h2>Selamat datang 💚</h2>
+    <p class="mut">Lengkapi profil dasar agar pemantauan berat kering dan cairan Anda lebih akurat.</p>
+    <p><label class="block mb-1 text-sm font-medium">Nama Panggilan<input id="oname" autocomplete="nickname" placeholder="mis. Pak Budi" class="mt-1"></label></p>
+    <p><label class="block mb-1 text-sm font-medium">BB Kering / Dry Weight (kg)<input id="obk" inputmode="decimal" placeholder="60.0" class="mt-1"></label></p>
+    <p><label class="block mb-1 text-sm font-medium">Tanggal Mulai HD<input id="odate" type="date" class="mt-1"></label></p>
+    <div class="flex gap-2 mt-4">
+      <button class="btn flex-1" id="osave">Simpan &amp; Mulai</button>
+      <button class="ghost" id="oskip">Lewati</button>
+    </div>
+    <p class="mt-4 text-center"><button class="ghost hp text-xs c-dg" type="button">🗑️ Hapus Data Perangkat</button></p>
+  </form>
+</dialog>
+
+<script>
+(function(){
+var $ = function(s){ return document.querySelector(s); };
+var S = {};
+try { S = JSON.parse(localStorage.getItem("hc_v2") || "{}"); } catch(e){}
+
+function save(){ try{ localStorage.setItem("hc_v2", JSON.stringify(S)); }catch(e){} }
+S.checks = S.checks || {};
+S.day = S.day || "";
+S.ilog = S.ilog || []; S.log = S.log || [];
+
+var today = (function(d){return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);})(new Date());
+if(S.day !== today){ S.checks = {}; S.ilog = []; S.day = today; save(); }
+
+var NAV = [
+  ["beranda","🏠","Beranda"],
+  ["cairan","💧","Manajemen Cairan"],
+  ["perjalanan","🗺️","Perjalanan"],
+  ["akses","🩸","Akses Vaskular"],
+  ["nutrisi","🍎","Nutrisi"],
+  ["obat","💊","Obat"],
+  ["kalkulator","🧮","Kalkulator"],
+  ["catatan","📈","Catatan"],
+  ["checklist","✅","Checklist"],
+  ["dukungan","💚","Dukungan"],
+  ["tanya","🤖","Tanya AI"]
+];
+
+var CHECK = [
+  "Timbang berat badan sebelum berangkat HD (BB Pre-HD)",
+  "Periksa akses vaskular: rasakan getaran (thrill) & cuci bersih lengan",
+  "Isi/Siapkan botol takar air minum sesuai kuota cairan harian",
+  "Bawa daftar obat dan buku catatan HD",
+  "Kenakan pakaian nyaman dengan lengan mudah digulung",
+  "Makan ringan sesuai arahan tim; jangan melewatkan obat penting",
+  "Siapkan pertanyaan untuk perawat atau dokter",
+  "Bawa selimut, permen/es kulum secukupnya, dan hiburan ringan"
+];
+
+function isDark(){
+  var t = document.documentElement.dataset.theme;
+  return t ? t === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
+function card(t, teaser, body, ic){
+  return '<div class="card"><h3>'+(ic||"")+" "+t+'</h3><p>'+teaser+'</p><details><summary>Lihat detail</summary>'+body+'</details></div>';
+}
+
+function ring(p){
+  var r = 34, c = 2 * Math.PI * r;
+  return '<svg class="ring" viewBox="0 0 84 84" role="img" aria-label="Progres checklist '+p+' persen"><circle cx="42" cy="42" r="'+r+'" fill="none" stroke="var(--sec)" stroke-width="9"/><circle cx="42" cy="42" r="'+r+'" fill="none" stroke="var(--pri)" stroke-width="9" stroke-linecap="round" stroke-dasharray="'+c+'" stroke-dashoffset="'+(c*(1-p/100))+'" transform="rotate(-90 42 42)"/><text x="42" y="47" text-anchor="middle" font-size="16" font-weight="700" fill="var(--fg)">'+p+'%</text></svg>';
+}
+
+function pct(){
+  var n = CHECK.filter(function(_,i){ return S.checks[i]; }).length;
+  return Math.round(n / CHECK.length * 100);
+}
+
+function checklistHTML(){
+  return CHECK.map(function(t,i){
+    return '<label class="chk"><input type="checkbox" data-i="'+i+'"'+(S.checks[i]?" checked":"")+'><span>'+t+'</span></label>';
+  }).join("");
+}
+
+function esc(s){
+  return String(s||"").replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+  });
+}
+
+function sumI(){ return (S.ilog||[]).reduce(function(a,b){ return a+b; },0); }
+function tgt(){ if(S.urin===undefined||String(S.urin).trim()==="") return null; return (parseFloat(S.urin)||0)+(parseFloat(S.iwl)||600); }
+function num(v){ var x=parseFloat(String(v).replace(",",".")); return isFinite(x)&&x>0?x:null; }
+function bar(v,t){ var p=Math.min(100,Math.round(v/t*100)), c=v>t?"var(--dg)":v>t*.85?"var(--acc)":"var(--pri)"; return '<div style="height:12px;border-radius:99px;background:var(--sec);overflow:hidden" role="progressbar" aria-valuenow="'+v+'" aria-valuemin="0" aria-valuemax="'+t+'"><div style="width:'+p+'%;height:100%;background:'+c+';transition:width .3s"></div></div>'; }
+function todayFluid(){ var t=tgt(); if(!t) return ""; var v=sumI(); return '<p class="mt-2"><b>'+v+'</b> / '+t+' mL diminum hari ini</p>'+bar(v,t); }
+function idwgClass(p){ return p<3?["Aman","var(--ok)"]:p<=5?["Sedang","var(--acc)"]:["Bahaya","var(--dg)"]; }
+function logRows(L){ var bk=num(S.bk); return L.map(function(e,i){ var pr=L[i-1], g=(pr&&pr.post&&e.pre)?+(e.pre-pr.post).toFixed(1):null; return {e:e,i:i,g:g,pc:(g!==null&&bk)?g/bk*100:null}; }); }
+function logTable(L){
+  if(!L.length) return '<p class="mut">Belum ada catatan.</p>';
+  var rows=logRows(L).reverse().map(function(r){
+    var c=r.pc!==null?idwgClass(r.pc):null;
+    return '<tr><td>'+esc(r.e.d)+'</td><td>'+r.e.pre+'</td><td>'+(r.e.post||"–")+'</td><td>'+(r.e.s?r.e.s+"/"+r.e.di:"–")+'</td><td>'+(r.g!==null?'<b'+(c?' style="color:'+c[1]+'"':'')+'>'+(r.g>0?"+":"")+r.g+' kg'+(r.pc!==null?' ('+r.pc.toFixed(1)+'%)':'')+'</b>':"–")+'</td><td><button class="ghost" data-del="'+r.i+'" aria-label="Hapus catatan">🗑</button></td></tr>';
+  }).join("");
+  return '<div style="overflow-x:auto"><table class="table-custom"><thead><tr><th>Tanggal</th><th>Pre</th><th>Post</th><th>TD</th><th>IDWG</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div>'+(num(S.bk)?"":'<p class="mut mt-2">Isi Berat Kering di Beranda agar persentase IDWG muncul.</p>');
+}
+function logChart(L){
+  var D=L.slice(-14), W=640, H=200, P=30, bk=num(S.bk), vals=[];
+  D.forEach(function(e){ vals.push(e.pre); if(e.post) vals.push(e.post); }); if(bk) vals.push(bk);
+  var mn=Math.min.apply(null,vals)-1, mx=Math.max.apply(null,vals)+1;
+  function X(i){ return D.length<2?W/2:P+i*(W-2*P)/(D.length-1); }
+  function Y(v){ return H-P-(v-mn)/(mx-mn)*(H-2*P); }
+  function line(k,col){ var pts=[]; D.forEach(function(e,i){ if(e[k]) pts.push(X(i).toFixed(1)+","+Y(e[k]).toFixed(1)); }); return '<polyline points="'+pts.join(" ")+'" fill="none" stroke="'+col+'" stroke-width="2.5" stroke-linejoin="round"/>'+pts.map(function(q){ var a=q.split(","); return '<circle cx="'+a[0]+'" cy="'+a[1]+'" r="3.5" fill="'+col+'"/>'; }).join(""); }
+  return '<div style="overflow-x:auto"><svg viewBox="0 0 '+W+' '+H+'" style="width:100%;min-width:420px;height:auto" role="img" aria-label="Grafik berat badan pre dan post HD">'+
+    (bk?'<line x1="'+P+'" x2="'+(W-P)+'" y1="'+Y(bk)+'" y2="'+Y(bk)+'" stroke="var(--ok)" stroke-dasharray="6 4"/><text x="'+(W-P)+'" y="'+(Y(bk)-5)+'" text-anchor="end" font-size="11" fill="var(--ok)">BB kering '+bk+' kg</text>':"")+
+    line("pre","var(--acc)")+line("post","var(--pri)")+
+    '<text x="'+P+'" y="14" font-size="11" fill="var(--mut)">'+mx.toFixed(0)+' kg</text><text x="'+P+'" y="'+(H-6)+'" font-size="11" fill="var(--mut)">'+mn.toFixed(0)+' kg</text></svg></div>'+
+    '<p class="mut"><span style="color:var(--acc)">●</span> Pre-HD &nbsp; <span style="color:var(--pri)">●</span> Post-HD &nbsp; <span style="color:var(--ok)">- -</span> BB kering</p>';
+}
+function initIntake(){
+  var el=$("#it");
+  function draw(){
+    var v=sumI(), t=tgt();
+    el.innerHTML='<p><b>'+v+' mL</b> diminum hari ini'+(t?' dari target <b>'+t+' mL</b> · sisa <b>'+Math.max(0,t-v)+' mL</b>':'')+'</p>'+
+      (t?bar(v,t):'<p class="mut">Isi volume urine 24 jam di atas untuk menetapkan target.</p>')+
+      (t&&v>t?'<p class="c-dg mt-2"><b>Melebihi target.</b> Hentikan minum; cukup berkumur air dingin.</p>':'')+
+      '<div class="flex gap-2 flex-wrap mt-3">'+[50,100,150,200,250].map(function(n){ return '<button class="ghost" data-add="'+n+'">+'+n+' mL</button>'; }).join("")+'<button class="ghost" data-act="undo">↩ Batalkan</button><button class="ghost" data-act="reset">Reset</button></div>'+
+      '<p class="mut mt-2">Catat semua cairan: minum, kuah, es batu (1 balok kecil ≈ 10–15 mL). Reset otomatis tiap hari.</p>';
+    el.querySelectorAll("button").forEach(function(b){ b.onclick=function(){
+      if(b.dataset.add) S.ilog.push(+b.dataset.add); else if(b.dataset.act==="undo") S.ilog.pop(); else S.ilog=[];
+      save(); draw();
+    }; });
+  }
+  draw(); return draw;
+}
+function initLog(){
+  $("#l-add").onclick=function(){
+    var pre=num($("#l-pre").value), post=num($("#l-post").value), d=$("#l-d").value, s=num($("#l-s").value), di=num($("#l-di").value), er=$("#l-err");
+    if(!d||!pre){ er.textContent="Isi tanggal dan BB Pre-HD."; return; }
+    if(pre>250||(post&&post>250)){ er.textContent="Berat badan tidak wajar, periksa kembali."; return; }
+    var e={d:d,pre:pre}; if(post) e.post=post; if(s&&di){ e.s=s; e.di=di; }
+    S.log=(S.log||[]).filter(function(x){ return x.d!==d; }); S.log.push(e);
+    S.log.sort(function(a,b){ return a.d<b.d?-1:a.d>b.d?1:0; }); save(); render();
+  };
+  document.querySelectorAll("[data-del]").forEach(function(b){ b.onclick=function(){
+    if(b.dataset.s!=="1"){ b.dataset.s="1"; b.textContent="Yakin?"; setTimeout(function(){ b.dataset.s=""; b.textContent="🗑"; },3000); return; }
+    S.log.splice(+b.dataset.del,1); save(); render();
+  }; });
+  var cb=$("#l-csv"); if(cb) cb.onclick=async function(){
+    try{
+      var dl=await claude.use("downloads"); if(!dl){ cb.style.display="none"; return; }
+      var csv="Tanggal,BB Pre (kg),BB Post (kg),Sistol,Diastol,IDWG (kg)\n"+logRows(S.log).map(function(r){ return [r.e.d,r.e.pre,r.e.post||"",r.e.s||"",r.e.di||"",r.g===null?"":r.g].join(","); }).join("\n");
+      await dl.save({filename:"catatan-hd.csv",data:new Blob([csv],{type:"text/csv"})});
+    }catch(e){}
+  };
+}
+
+var V = {
+  beranda: function(){
+    var h = new Date().getHours(), g = h<11?"pagi":h<15?"siang":h<18?"sore":"malam";
+    var nm = S.name || "";
+    var days = S.start ? Math.max(0, Math.floor((Date.now() - new Date(S.start))/864e5)) : null;
+    return '<h1>Selamat '+g+(nm?", "+esc(nm):"")+' 🌤️</h1>'+
+    '<p class="mut">“Disiplin cairan dan nutrisi adalah kunci kenyamanan sepanjang masa hemodialisis.”</p>'+
+    '<div class="grid-cols-auto" style="margin:16px 0">'+
+      '<div class="card stat"><div class="mut">💧 Berat Kering (DW Target)</div><div class="v"><input id="bk" inputmode="decimal" placeholder="kg" value="'+esc(S.bk||"")+'" aria-label="Berat kering" style="width:110px"> <span style="font-size:.6em;font-weight:normal">kg</span></div><p class="mut">Ditetapkan oleh dr. Sp.PD-KGH / tim HD</p></div>'+
+      '<div class="card stat"><div class="mut">🗓️ Sesi HD Berikutnya</div><div class="v"><input id="jd" type="datetime-local" value="'+esc(S.jd||"")+'" aria-label="Jadwal sesi HD"></div></div>'+
+      '<div class="card stat"><div class="mut">🩸 Kondisi Akses</div><select id="ak" aria-label="Kondisi akses"><option>Baik &amp; Getar (Thrill +)</option><option'+(S.ak==="Perlu dicek"?" selected":"")+'>Perlu dicek / Berubah</option></select><p class="mut">'+(days!==null?"Perjalanan HD: Hari ke-"+days:"Atur tanggal mulai di Pengaturan")+'</p></div>'+
+    '</div>'+
+    '<div class="card caution">'+
+      '<h3>💧 Ringkasan Batas Cairan Harian</h3>'+
+      '<p>Berdasarkan sisa urine harian Anda. <b>Target Cairan = Urin 24 Jam + 500–750 mL (IWL)</b>.</p>'+
+      todayFluid()+'<div class="mt-2 flex gap-2"><a class="btn" href="#cairan">Buka Manajemen Cairan →</a></div>'+
+    '</div>'+
+    '<div class="card"><div style="display:flex;gap:16px;align-items:center">'+ring(pct())+'<div><h3>✅ Checklist Hari Dialisis</h3><p class="mut">Persiapan mandiri sebelum berangkat HD.</p><a class="btn" href="#checklist">Buka Checklist</a></div></div></div>'+
+    '<div class="card"><h3>📈 Catatan Berat Badan</h3><p class="mut">Pantau IDWG sesi demi sesi lengkap dengan grafik.</p><a class="btn" href="#catatan">Buka Catatan</a></div>'+
+    '<div class="card"><h3>🤖 Butuh Jawaban Cepat?</h3><p class="mut">Asisten AI Nefrologi siap menjelaskan manajemen cairan, akses, &amp; kiat xerostomia.</p><a class="btn" href="#tanya">Tanya Asisten AI →</a></div>'+
+    '<div class="card good"><b>Pesan Klinis:</b> Menjaga kenaikan berat badan antar-sesi (IDWG) &lt; 5% berat kering mengurangi risiko kram otot, hipotensi, dan sesak napas (edema paru).</div>'+
+    '<p style="text-align:center;margin-top:20px;"><button class="ghost hp">🗑️ Hapus Data Lokal</button></p>';
+  },
+
+  cairan: function(){
+    var dw = parseFloat(S.bk) || 60;
+    return '<h1>💧 Sistem Manajemen Cairan HD</h1>'+
+    '<p class="mut">Panduan praktis pembatasan &amp; pemantauan cairan di rumah (Verifikasi: <b>dr. Puguh Widagdo, SpPD-FINASIM</b>).</p>'+
+
+    '<div class="card caution">'+
+      '<h3>🧮 Kalkulasi Target Cairan Presisi</h3>'+
+      '<p class="mut mb-3">Hitung kuota minum 24 jam berdasarkan produksi sisa urine dan IWL (Insensible Water Loss).</p>'+
+      '<div class="grid-cols-auto">'+
+        '<div><label class="block text-sm font-medium">Volume Urine 24 Jam (mL)</label><input id="fc-urin" inputmode="decimal" placeholder="mis. 300" value="'+esc(S.urin===undefined?"":S.urin)+'"></div>'+
+        '<div><label class="block text-sm font-medium">Taksiran IWL (Perspirasi/Napas)</label><select id="fc-iwl"><option value="500">500 mL (Ketat / Minimal)</option><option value="600" selected>600 mL (Standar)</option><option value="750">750 mL (Aktivitas Sedang)</option></select></div>'+
+        '<div><label class="block text-sm font-medium">Berat Kering / DW (kg)</label><input id="fc-dw" inputmode="decimal" placeholder="60" value="'+esc(S.bk||"")+'"></div>'+
+      '</div>'+
+      '<div id="fc-res" class="mt-4"></div>'+
+    '</div>'+
+
+    '<div class="card good"><h3>🍾 Botol Takar Digital</h3><div id="it" aria-live="polite"></div></div>'+
+
+    '<div class="card">'+
+      '<h3>📊 Analisis Status Urine</h3>'+
+      '<div class="grid-cols-auto mt-2">'+
+        '<div class="t-dg">'+
+          '<b class="c-dg">Anuria Total (0 mL / 24 jam)</b>'+
+          '<p class="text-xs mt-1">Saringan ginjal sepenuhnya berhenti. Target cairan <b>STRICT: 500–750 mL/hari</b> total (semua sumber cairan termasuk kuah/buah).</p>'+
+        '</div>'+
+        '<div class="t-ok">'+
+          '<b class="c-ok">Oliguria / Ada Sisa Urine</b>'+
+          '<p class="text-xs mt-1">Tampung urine 24 jam minimal 1x per bulan. Batas cairan = Volume Urine + 500–750 mL. Pasien lebih leluasa namun tetap terpantau.</p>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+
+    '<div class="card">'+
+      '<h3>⭐ 5 Pilar Utama Manajemen Cairan</h3>'+
+      card("1. Retensi Natrium (Akar Rasa Haus)", "Haus dipicu oleh GARAM, bukan kekurangan air.",
+        "<p>Natrium mengikat air dalam pembuluh darah dan merangsang pusat haus di otak. Menghindari makanan tinggi garam adalah langkah awal tercepat menurunkan dahaga.</p><ul><li><b>Hindari:</b> Ikan asin, telur asin, keju, makanan kaleng, MSG berlebih, mi instan, & kecap tinggi natrium.</li><li><b>Gunakan pengganti rasa:</b> Bawang putih/merah, jeruk nipis, jahe, ketumbar, dan rempah alami.</li></ul>", "🧂")+
+      card("2. Teknik Botol Takar (Single Bottle Method)", "Kontrol visual kuota cairan harian.",
+        "<p>Siapkan 1 botol takar transparan (mis. 600 mL / 800 mL) pada pagi hari sesuai kuota hasil kalkulasi.</p><ul><li>Setiap kali minum air, teh, kopi, atau makan kuah sup, tuangkan air sejumlah yang sama dari botol ke dalam wadah lain atau buang.</li><li>Jika botol takar sudah kosong, kuota cairan Anda hari itu <b>habis sepenuhnya</b>.</li></ul>", "🍾")+
+      card("3. Manajemen Xerostomia (Mulut Kering)", "Atasi mulut kering tanpa menambah kuota minum.",
+        "<p>Saat merasa sangat aus atau mulut terasa kering:</p><ul><li>Isap irisan <b>lemon dingin</b> atau kulum <b>es batu kecil</b> (catat es batu sebagai cairan: 1 balok kecil ≈ 10–15 mL).</li><li>Kunyah <b>permen karet bebas gula</b> (sugar-free) untuk merangsang produksi air liur.</li><li>Berkumur dengan air dingin lalu <b>DIBUANG (jangan ditelan)</b>.</li><li>Hindari meneguk air dalam jumlah besar sekaligus.</li></ul>", "🍋")+
+      card("4. Self-Monitoring Timbang Mandiri", "Pantau IDWG setiap hari di rumah.",
+        "<p>Timbang BB Anda setiap pagi hari (setelah bangun, setelah buang air kecil, dan sebelum makan/minum).</p><ul><li>Catat dalam harian. Kenaikan &gt; 1 kg dalam 1 hari menandakan penumpukan cairan pesat.</li><li>Evaluasi kembali asupan garam hari sebelumnya.</li></ul>", "⚖️")+
+      card("5. Cara Pengukuran Urine 24 Jam", "Tampung akurat untuk penyesuaian fluid allowance.",
+        "<p>Cara menampung urine 24 jam dengan benar:</p><ol class='list-decimal pl-4'><li>Saat bangun pagi (mis. jam 06:00), buang urine pertama di toilet (tidak ditampung).</li><li>Tampung seluruh urine berikutnya sepanjang siang, malam, hingga bangun pagi besok jam 06:00.</li><li>Ukur total volume dengan gelas ukur presisi dan catat hasilnya untuk dilaporkan ke dokter Sp.PD / perawat HD.</li></ol>", "🧪")+
+    '</div>'+
+
+    '<div class="card">'+
+      '<h3>📋 Protokol Respons Indikator Klinis</h3>'+
+      '<p class="mut">Tindakan mandiri dan rujukan berdasarkan gejala yang muncul:</p>'+
+      '<div style="overflow-x:auto">'+
+        '<table class="table-custom">'+
+          '<thead><tr><th>Kondisi Klinis</th><th>Penyebab Kemungkinan</th><th>Tindakan advis AI &amp; Pasien</th></tr></thead>'+
+          '<tbody>'+
+            '<tr><td><b>IDWG Berlebih</b><br>(&gt;5% DW / &gt;2 kg dalam 2 hari)</td><td>Asupan garam tinggi, minum berlebih, anuria.</td><td><span class="c-dg font-semibold">TANDA BAHAYA EDEMA PARU</span>. Perketat minum (max 500 mL/hari), evaluasi ketat garam, dan laporkan segera ke unit HD.</td></tr>'+
+            '<tr><td><b>Kram Otot / Hipotensi saat HD</b></td><td>Penarikan cairan terlalu cepat atau DW terlalu rendah.</td><td><b>Jangan langsung minum banyak.</b> Konsultasikan penyesuaian Berat Kering (DW) dengan dokter Sp.PD-KGH.</td></tr>'+
+            '<tr><td><b>Haus Ekstrem / Xerostomia Heavy</b></td><td>Hiperglikemia (gula darah tinggi) / Garam berlebih.</td><td>Periksa GDS (Gula Darah Sewaktu), berkumur air dingin tanpa menelan. <i>Jangan menambah kuota minum sendiri.</i></td></tr>'+
+          '</tbody>'+
+        '</table>'+
+      '</div>'+
+    '</div>';
+  },
+
+  perjalanan: function(){
+    return '<h1>🗺️ Perjalanan Hemodialisis</h1><p class="mut">Alur transparan agar Anda tenang menjalani setiap sesi.</p>'+
+    card("Sebelum Sesi HD", "Persiapan mandiri di rumah.", "<p>Timbang BB Pre-HD, periksa desiran fistula, pastikan konsumsi obat sesuai jadwal, dan siapkan botol takar. Datang tepat waktu tanpa tergesa-gesa.</p>", "🏠")+
+    card("Saat Sesi Berlangsung (4–5 Jam)", "Proses penyaringan darah oleh dialiser.", "<p>Dua jarum dipasang pada akses vaskular. Darah dialirkan ke mesin HD untuk dibersihkan dari racun uremik dan kelebihan cairan. Tensi dipantau secara berkala oleh perawat. Laporkan segera jika merasa pusing, kram, mual, atau sesak napas.</p>", "💺")+
+    card("Setelah Sesi HD", "Pemulihan dan penekanan bekas tusukan.", "<p>Lakukan penekanan pada lokasi tusukan sesuai petunjuk perawat hingga perdarahan berhenti. Bangun secara perlahan dari tempat tidur untuk mencegah hipotensi ortostatik. Hindari mengangkat beban berat dengan lengan akses.</p>", "🌿")+
+    card("Mengatasi Rasa Lelah Pasca-HD", "Hal yang wajar dan dapat dikelola.", "<p>Rasa lelah (dialysis washout) disebabkan perpindahan cairan dan elektrolit yang cepat. Istirahat cukup, evaluasi kadar hemoglobin (cek anemia), serta diskusikan dengan dokter jika rasa lelah mengganggu aktivitas harian.</p>", "🔋");
+  },
+
+  akses: function(){
+    return '<h1>🩸 Perawatan Akses Vaskular</h1><p class="mut">Fistula AV (Cimino) atau Kateter Double Lumen adalah jalur kehidupan Anda.</p>'+
+    card("Perawatan Harian Cimino", "Menjaga aliran darah tetap lancar.", "<ul><li>Rasakan getaran halus (thrill) dan dengarkan desiran (bruit) setiap pagi.</li><li>Cuci area akses dengan sabun lembut dan air bersih sebelum berangkat HD.</li><li>Lakukan latihan meremas bola karet jika baru dibuat (sesuai arahan dokter).</li></ul>", "🧼")+
+    card("Larangan Keras pada Lengan Akses", "Melindungi dari sumbatan dan kerusakan.", "<ul><li><b>Dilarang keras:</b> Mengukur tekanan darah (tensi), mengambil darah, atau memasang infus di lengan akses.</li><li>Jangan tidur menindih lengan akses.</li><li>Jangan memakai pakaian ketat, jam tangan, atau membawa beban berat di lengan tersebut.</li></ul>", "🚫")+
+    '<div class="card warn"><b>⚠️ Kapan Harus Segera ke Rumah Sakit?</b><br>Jika getaran/thrill hilang, timbul bengkak hebat, kemerahan, terasa panas, keluar nanah, atau timbul perdarahan dari bekas tusukan yang tidak berhenti dengan penekanan 15 menit.</div>';
+  },
+
+  nutrisi: function(){
+    return '<h1>🍎 Nutrisi &amp; Diit HD</h1><p class="mut">Menjaga keseimbangan nutrisi tanpa membebani ginjal.</p>'+
+    card("Asupan Protein Adekuat", "Mencegah pembongkaran otot (sarcopenia).", "<p>Pasien HD membutuhkan protein lebih tinggi dibanding sebelum dialisis (sekitar 1.1–1.2 g/kgBB/hari). Pilih protein berkualitas tinggi seperti putih telur, dada ayam, ikan segar, dan daging tanpa lemak.</p>", "🥚")+
+    card("Pengendalian Kalium", "Melindungi irama jantung.", "<p>Kalium tinggi (hiperkalemia) memicu gangguan irama jantung mendadak. Batasi pisang, alpukat, kurma, air kelapa, dan sayuran mentah. Rendam atau rebus sayuran dalam air hangat sebelum dimasak untuk mengikis kalium.</p>", "🍌")+
+    card("Pengendalian Fosfat &amp; Pengikat Fosfat", "Mencegah gatal & tulang keropos.", "<p>Fosfat tinggi merusak tulang dan memicu kalsifikasi pembuluh darah. Hindari produk olahan susu, jeroan, dan pengawet cola. Minum <b>obat pengikat fosfat (phosphate binder)</b> bersamaan dengan suapan pertama makanan.</p>", "🦴");
+  },
+
+  obat: function(){
+    return '<h1>💊 Panduan Obat-obatan</h1><p class="mut">Konsumsi obat presisi sesuai advis dokter Sp.PD.</p>'+
+    card("Kelompok Obat Utama Pasien HD", "Memahami fungsi masing-masing obat.", "<ul><li><b>Pengikat Fosfat (Phosphate Binders):</b> Diminum <b>bersama makanan</b> untuk mengikat fosfat dalam usus.</li><li><b>Suplemen Zat Besi & ESA (Erythropoietin):</b> Membantu pembentukan sel darah merah untuk mengatasi anemia.</li><li><b>Vitamin D Aktif & Kalsium:</b> Menjaga kesehatan tulang & kelenjar paratiroid.</li><li><b>Obat Antihipertensi:</b> Waktu minum disesuaikan dokter (beberapa diminum pasca-HD agar tensi tidak anjlok saat HD).</li></ul>", "📋")+
+    card("Tips Disiplin & Keamanan Obat", "Mencegah bahaya obat toksik ginjal.", "<p>Gunakan kotak obat harian (pill box) dan pasang pengingat alarm di ponsel. <b>Dilarang keras</b> mengonsumsi jamu herbal, suplemen sembarangan, atau obat antinyeri golongan NSAID (seperti asam mefenamat/ibuprofen) tanpa izin dokter nefrologi.</p>", "⏰");
+  },
+
+  catatan: function(){
+    var L=S.log||[];
+    return '<h1>📈 Catatan Berat Badan</h1><p class="mut">IDWG dihitung otomatis: BB Pre-HD dikurangi BB Post-HD sesi sebelumnya. Data tersimpan di perangkat ini.</p>'+
+    '<div class="card"><h3>➕ Tambah Catatan</h3><div class="grid-cols-auto mt-2">'+
+      '<label class="text-sm font-medium">Tanggal<input id="l-d" type="date" value="'+today+'" class="mt-1"></label>'+
+      '<label class="text-sm font-medium">BB Pre-HD (kg)<input id="l-pre" inputmode="decimal" class="mt-1"></label>'+
+      '<label class="text-sm font-medium">BB Post-HD (kg)<input id="l-post" inputmode="decimal" class="mt-1"></label>'+
+      '<div class="text-sm font-medium">TD Sistol / Diastol (opsional)<div style="display:flex;gap:6px" class="mt-1"><input id="l-s" inputmode="numeric" placeholder="130" aria-label="Sistol"><input id="l-di" inputmode="numeric" placeholder="80" aria-label="Diastol"></div></div>'+
+    '</div><p id="l-err" class="c-dg mt-2" role="alert"></p><div class="flex gap-2 mt-2 flex-wrap"><button class="btn" id="l-add">Simpan Catatan</button>'+(L.length?'<button class="ghost" id="l-csv">⬇ Ekspor CSV</button>':'')+'</div></div>'+
+    (L.length?'<div class="card"><h3>📊 Tren (14 sesi terakhir)</h3>'+logChart(L)+'</div>':'')+
+    '<div class="card"><h3>🗒️ Riwayat</h3>'+logTable(L)+'</div>';
+  },
+
+  kalkulator: function(){
+    function f(id,l,p){ return '<label class="block text-sm font-medium mb-1">'+l+'<input id='+id+' inputmode=decimal placeholder='+p+' class="mt-1"></label>'; }
+    return '<h1>🧮 Kalkulator Terpadu HD</h1><p class="mut">Kalkulasi IDWG, Batas Cairan, dan Indeks Massa Tubuh (BMI WHO Asia-Pasifik &amp; Kemenkes RI).</p>'+
+    '<div class="card"><h3>💧 Kalkulator IDWG &amp; Cairan Harian</h3>'+
+      '<div class="grid-cols-auto mt-3">'+f('c-bk','Berat Kering / DW Target (kg)','60')+f('c-now','BB Saat Ini / Pre-HD (kg)','62.5')+f('c-post','BB Post-HD Sesi Lalu (kg)','60.0')+f('c-age','Usia (tahun)','55')+f('c-urin','Urin 24 jam (mL)','300')+'</div>'+
+      '<div id="r1" class="mt-4"></div>'+
+    '</div>'+
+    '<div class="card"><h3>⚖️ Indeks Massa Tubuh (BMI)</h3>'+
+      '<div class="grid-cols-auto mt-3">'+f('c-tb','Tinggi Badan (cm)','165')+'</div>'+
+      '<p class="mut mt-2">Dihitung dari Berat Kering (DW), dengan acuan WHO Asia-Pasifik dan Kemenkes RI.</p>'+
+      '<div id="r2" class="mt-3"></div>'+
+    '</div>';
+  },
+
+  checklist: function(){
+    return '<h1>✅ Checklist Hari Dialisis</h1>'+
+    '<div class="card"><div style="display:flex;gap:16px;align-items:center"><div id="rg">'+ring(pct())+'</div><div><p class="font-medium">Centang persiapan yang sudah selesai disiapkan.</p><p class="mut">Diset otomatis setiap harinya.</p></div></div>'+
+    '<div class="mt-4">'+checklistHTML()+'</div></div>'+
+    card("Teach-Back Mandiri", "Evaluasi pemahaman hari ini.", "<p>Catat di buku harian Anda: <b>3 hal yang akan saya disiplinkan besok</b> mengenai retensi garam, minum takar, dan jadwal obat.</p>", "📝");
+  },
+
+  dukungan: function(){
+    return '<h1>💚 Dukungan Psikososial</h1><p class="mut">Kesehatan mental sama pentingnya dengan kesehatan fisik.</p>'+
+    card("Mengelola Cemas & Stress Dialisis", "Langkah kecil menenangkan pikiran.", "<p>Wajar jika sesekali merasa jenuh atau cemas. Gunakan teknik relaksasi napas dalam (tarik 4 detik, tahan 4 detik, hembuskan 6 detik). Bicara terbuka dengan perawat, dokter, atau keluarga mengenai perasaan Anda.</p>", "🌤️")+
+    card("Peran Penting Pendamping Keluarga", "Dukungan orang terdekat.", "<p>Pendamping keluarga disarankan membantu memantau takaran botol minum di rumah, memasak dengan rempah rendah garam, serta memberi dorongan semangat saat jadwal dialisis.</p>", "👨‍👩‍👧");
+  },
+
+  tanya: function(){
+    return '<h1>🤖 Asisten AI Nefrologi</h1>'+
+    '<p class="mut">Konsultasi edukatif manajemen cairan &amp; dialisis (Supervisi: <b>dr. Puguh Widagdo, SpPD-FINASIM</b>).</p>'+
+    '<div class="card">'+
+      '<div id="sg"><p class="mut mb-2 font-medium">Pilih pertanyaan cepat:</p>'+
+        [
+          "Berapa batas minum saya jika urine 24 jam 300 mL?",
+          "Bagaimana cara mengatasi mulut kering tanpa minum banyak?",
+          "Apa tanda bahaya kenaikan berat badan antar-sesi (IDWG)?",
+          "Bagaimana cara merawat fistula cimino agar tidak tersumbat?",
+          "Mengapa makanan asin bikin makin haus?"
+        ].map(function(q){ return '<button class="sug">'+q+'</button>'; }).join("")+
+      '</div>'+
+      '<div class="chat" id="chat" aria-live="polite"></div>'+
+      '<form id="cf" style="display:flex;gap:8px;margin-top:14px"><input id="ci" placeholder="Tulis pertanyaan Anda seputar cairan, HD, atau obat..." aria-label="Pertanyaan Anda"><button class="btn" aria-label="Kirim">➤</button></form>'+
+    '</div>';
+  }
+};
+
+function render(){
+  var k = (location.hash || "#beranda").slice(1);
+  if(!V[k]) k = "beranda";
+
+  $("#nav").innerHTML = '<div class="brand">🏥 Hemodialisa<br>Companion</div>' +
+    NAV.map(function(n){
+      return '<a href="#'+n[0]+'"'+(n[0]===k?' class="on" aria-current="page"':"")+'><span aria-hidden="true">'+n[1]+'</span>'+n[2]+'</a>';
+    }).join("") +
+    '<div class="tools">'+
+      '<button class="ghost" id="th" aria-label="Mode Gelap/Terang">'+(isDark()?"☀️ Terang":"🌙 Gelap")+'</button>'+
+      '<button class="ghost" id="fm" aria-label="Huruf kecil">A-</button>'+
+      '<button class="ghost" id="fp" aria-label="Huruf besar">A+</button>'+
+      '<button class="ghost" id="st">⚙️ Profil</button>'+
+    '</div>';
+
+  $("#main").innerHTML = V[k]() +
+    '<div class="sup">'+
+      '⚕️ Disupervisi oleh <b>dr. Puguh Widagdo, SpPD-FINASIM</b> (Fellowship Hemodialisis)<br>'+
+      '<span>Informasi bersifat edukatif mandiri, bukan pengganti diagnosis/resep medis langsung. Untuk kondisi akut (sesak hebat, nyeri dada, perdarahan), segera hubungi unit HD atau IGD terdekat.</span>'+
+    '</div>';
+
+  $("#main").querySelectorAll("[data-i]").forEach(function(c){
+    c.onchange = function(){
+      S.checks[c.dataset.i] = c.checked;
+      save();
+      var r = $("#rg");
+      if(r) r.innerHTML = ring(pct());
+    };
+  });
+
+  var bk = $("#bk"); if(bk) bk.onchange = function(){ S.bk = bk.value.trim().replace(",","."); save(); };
+  var jd = $("#jd"); if(jd) jd.onchange = function(){ S.jd = jd.value; save(); };
+  var ak = $("#ak"); if(ak) ak.onchange = function(){ S.ak = ak.value; save(); };
+
+  if(k === "cairan") initFluidPage();
+  if(k === "tanya") initChat();
+  if(k === "kalkulator") initCalc();
+  if(k === "catatan") initLog();
+
+  drawTg();
+  window.scrollTo(0,0);
+}
+
+function initFluidPage(){
+  var redraw = initIntake();
+  function calcFluid(){
+    var u = parseFloat($("#fc-urin").value) || 0;
+    var iwl = parseFloat($("#fc-iwl").value) || 600;
+    var dw = parseFloat($("#fc-dw").value) || 0;
+
+    S.urin = $("#fc-urin").value; S.iwl = iwl; if(dw) S.bk = String(dw); save();
+    if(S.urin.trim()===""){ $("#fc-res").innerHTML = '<p class="mut">Isi volume urine 24 jam (isi 0 jika anuria).</p>'; if(redraw) redraw(); return; }
+
+    var target = u + iwl;
+    var maxIDWG = (dw * 0.05).toFixed(1);
+    var safeIDWG = (dw * 0.03).toFixed(1);
+
+    var resHTML = '<div class="t-pri space-y-2">'+
+      '<div class="text-lg font-bold c-pri">Target Cairan Harian: ± '+target+' mL / 24 jam</div>'+
+      '<p class="text-xs mut">Formula: Urine 24 jam ('+u+' mL) + IWL ('+iwl+' mL).</p>'+
+      '<hr style="border:0;border-top:1px solid var(--bd)" class="my-2">'+
+      '<div class="grid grid-cols-2 gap-2 text-xs">'+
+        '<div>Batas Kenaikan Antar Sesi (Aman &lt;3%): <b>&lt; '+safeIDWG+' kg</b></div>'+
+        '<div>Batas IDWG Maksimal (3–5% DW): <b>'+safeIDWG+' – '+maxIDWG+' kg</b></div>'+
+      '</div>'+
+      '<p class="text-xs c-dg font-medium mt-1">*Jika kenaikan berat badan antar-sesi &gt; '+maxIDWG+' kg (&gt;5% DW), Anda dalam zona bahaya edema paru &amp; beban jantung berat!</p>'+
+    '</div>';
+
+    if(!dw) resHTML = resHTML.split("<hr")[0] + "</div>";
+    $("#fc-res").innerHTML = resHTML;
+    if(redraw) redraw();
+  }
+
+  if(S.iwl) $("#fc-iwl").value = S.iwl;
+  ["fc-urin","fc-iwl","fc-dw"].forEach(function(id){
+    var el = $("#"+id);
+    if(el) el.oninput = calcFluid;
+  });
+  calcFluid();
+}
+
+var BMI_C={bl:"#2f6fb5",lb:"#4a90d9",gr:"#2f9e6e",ye:"#f5b324",rd:"#e5604d",dr:"#b83232"};
+function bmiBar(b,segs,ticks){
+  var W=420,MN=14,MX=40,x0=10,x1=W-10,Y=34,H=18;
+  function X(v){ return x0+(Math.min(MX,Math.max(MN,v))-MN)/(MX-MN)*(x1-x0); }
+  var cur=segs.filter(function(s){ return b>=s[0]&&b<s[1]; })[0]||segs[segs.length-1];
+  var mx=X(b), bx=Math.min(W-30,Math.max(30,mx)), id="bc"+Math.random().toString(36).slice(2,7);
+  var rects=segs.map(function(s){ return '<rect x="'+X(s[0]).toFixed(1)+'" y="'+Y+'" width="'+(X(s[1])-X(s[0])).toFixed(1)+'" height="'+H+'" fill="'+s[3]+'"'+(s===cur?'':' opacity=".4"')+'/>'; }).join("");
+  var tk=ticks.map(function(t){ var x=X(t).toFixed(1); return '<line x1="'+x+'" x2="'+x+'" y1="'+(Y+H)+'" y2="'+(Y+H+4)+'" stroke="var(--mut)"/><text x="'+x+'" y="'+(Y+H+15)+'" text-anchor="middle" font-size="10" fill="var(--mut)">'+String(t).replace(".",",")+'</text>'; }).join("");
+  var m=mx.toFixed(1);
+  var svg='<svg viewBox="0 0 '+W+' 70" style="width:100%;height:auto" role="img" aria-label="Diagram BMI '+b.toFixed(1)+', kategori '+cur[2]+'"><defs><clipPath id="'+id+'"><rect x="'+x0+'" y="'+Y+'" width="'+(x1-x0)+'" height="'+H+'" rx="9"/></clipPath></defs><g clip-path="url(#'+id+')">'+rects+'</g>'+tk+
+    '<line x1="'+m+'" x2="'+m+'" y1="26" y2="'+(Y+H+3)+'" stroke="var(--card)" stroke-width="6" stroke-linecap="round"/><line x1="'+m+'" x2="'+m+'" y1="26" y2="'+(Y+H+3)+'" stroke="var(--fg)" stroke-width="2.5" stroke-linecap="round"/>'+
+    '<rect x="'+(bx-24)+'" y="1" width="48" height="20" rx="10" fill="var(--fg)"/><polygon points="'+(mx-5)+',20 '+(mx+5)+',20 '+m+',27" fill="var(--fg)"/><text x="'+bx+'" y="15" text-anchor="middle" font-size="12" font-weight="700" fill="var(--bg)">'+b.toFixed(1)+'</text></svg>';
+  var lg='<div style="display:flex;flex-wrap:wrap;gap:4px 14px;font-size:.8em" class="mt-1">'+segs.map(function(s){ return '<span style="display:inline-flex;align-items:center;gap:5px;'+(s===cur?'font-weight:700':'color:var(--mut)')+'"><i style="width:10px;height:10px;border-radius:50%;background:'+s[3]+'"></i>'+s[2]+' <span style="opacity:.8">'+s[4]+'</span></span>'; }).join("")+'</div>';
+  return {cur:cur,html:svg+lg};
+}
+function bmiPanel(w,tb,lab){
+  var m=tb/100, b=Math.round(w/(m*m)*10)/10, C=BMI_C;
+  var who=bmiBar(b,[[14,18.5,"Kurus",C.lb,"&lt; 18,5"],[18.5,23,"Normal",C.gr,"18,5–22,9"],[23,25,"Gemuk (berisiko)",C.ye,"23–24,9"],[25,30,"Obesitas I",C.rd,"25–29,9"],[30,41,"Obesitas II",C.dr,"≥ 30"]],[18.5,23,25,30]);
+  var km=bmiBar(b,[[14,17,"Kurus berat",C.bl,"&lt; 17"],[17,18.5,"Kurus ringan",C.lb,"17–18,4"],[18.5,25.05,"Normal",C.gr,"18,5–25"],[25.05,27.05,"Gemuk ringan",C.ye,"25,1–27"],[27.05,41,"Gemuk berat",C.rd,"&gt; 27"]],[17,18.5,25,27]);
+  function row(t,r){ var c=r.cur[3]; return '<div class="mt-4"><div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap"><b>'+t+'</b><span class="pill" style="background:color-mix(in srgb,'+c+' 22%,transparent);border:1px solid '+c+';color:var(--fg)">'+r.cur[2]+'</span></div>'+r.html+'</div>'; }
+  function rg(lo,hi){ return (lo*m*m).toFixed(1).replace(".",",")+"–"+(hi*m*m).toFixed(1).replace(".",",")+" kg"; }
+  return '<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap"><span style="font-size:2.2em;font-weight:700;font-variant-numeric:tabular-nums">'+b.toFixed(1)+'</span><span class="mut">kg/m² · '+lab+' '+w+' kg, TB '+tb+' cm</span></div>'+row("WHO Asia-Pasifik",who)+row("Kemenkes RI",km)+
+    '<div class="card t-pri mt-4" style="margin-bottom:0"><b>Rentang BB normal untuk TB Anda:</b><br>WHO Asia-Pasifik: <b>'+rg(18.5,22.9)+'</b><br>Kemenkes RI: <b>'+rg(18.5,25)+'</b></div>'+
+    '<p class="mut mt-2">Pada pasien HD, BMI dihitung dari berat kering. Interpretasikan bersama status gizi lain (albumin, massa otot, edema) dengan tim HD.</p>';
+}
+function initCalc(){
+  var ids = ['c-bk','c-now','c-post','c-age','c-urin','c-tb'], keys = ['bk','now','post','age','urin','tb'];
+  function n(id){
+    var v = parseFloat(String($('#'+id).value).replace(',','.'));
+    return isFinite(v) && v > 0 ? v : null;
+  }
+  function calc(){
+    ids.forEach(function(id,i){ S[keys[i]] = $('#'+id).value; });
+    save();
+
+    var bk = n('c-bk'), now = n('c-now'), post = n('c-post'), age = n('c-age'), urin = n('c-urin') || 0, tb = n('c-tb'), h = '';
+
+    if(!bk){
+      h = '<p class="mut">Isi Berat Kering (DW) untuk memulai penghitungan.</p>';
+    } else {
+      var lim = (age && age >= 60) ? 3 : 4;
+      var grp = age ? (age >= 60 ? 'Lansia (≥60 thn)' : 'Dewasa') : 'Dewasa';
+      var mx = bk * lim / 100;
+
+      if(now && post){
+        var g = now - post;
+        var p = (g / bk) * 100;
+        var c = p < 3 ? ['Aman (<3%)','var(--ok)'] : p <= 5 ? ['Sedang (3–5%)','var(--acc)'] : ['BAHAYA (>5%)','var(--dg)'];
+        h += '<div class="stat"><div class="mut">IDWG Sesi Ini (BB Pre-HD − BB Post-HD Lalu)</div><div class="v" style="color:'+c[1]+'">+'+g.toFixed(1)+' kg ('+p.toFixed(1)+'%)</div><span class="pill">'+c[0]+'</span></div>';
+      } else {
+        h += '<p class="mut">Isi BB Saat Ini &amp; BB Post-HD Sesi Lalu untuk kalkulasi IDWG.</p>';
+      }
+
+      h += '<div class="card good mt-3"><b>Rekomendasi Terintegrasi ('+grp+'):</b><br>Target kenaikan BB maksimal antar-sesi: <b>'+mx.toFixed(1)+' kg</b> (≤'+lim+'% DW).<br>Perkiraan Asupan Cairan Harian: <b>'+(urin + 600)+' mL</b> (Urine '+urin+' mL + IWL 600 mL).</div>';
+    }
+    $('#r1').innerHTML = h;
+
+    var w = bk || post, b = '';
+    if(!tb || !w){
+      b = '<p class="mut">Isi berat kering dan tinggi badan untuk menghitung BMI.</p>';
+    } else {
+      var bmi = w / Math.pow(tb / 100, 2);
+      var cat = bmi < 18.5 ? 'Kurus (<18.5)' : bmi < 23 ? 'Normal (18.5–22.9)' : bmi < 25 ? 'Gemuk / Overweight (23–24.9)' : 'Obesitas (≥25)';
+      b = '<div class="stat"><div class="v">'+bmi.toFixed(1)+' kg/m²</div><span class="pill">'+cat+'</span></div>'+
+          '<p class="mut mt-2">Kategori BMI khusus WHO Asia-Pasifik untuk pasien penyakit ginjal kronis.</p>';
+    }
+    $('#r2').innerHTML = (tb && w) ? bmiPanel(w, tb, bk ? 'BB kering' : 'BB post-HD') : b;
+  }
+  ids.forEach(function(id){ var el = $('#'+id); if(el){ el.value = S[keys[ids.indexOf(id)]] || ''; el.oninput = calc; } });
+  calc();
+}
+
+function drawTg(){
+  var m = S.theme || "auto";
+  $("#tg").innerHTML = [["light","☀️","Terang"],["dark","🌙","Gelap"],["auto","🖥️","Auto"]].map(function(o){
+    return '<button data-th="'+o[0]+'" aria-pressed="'+(m===o[0])+'" title="'+o[2]+'">'+o[1]+'</button>';
+  }).join("");
+}
+
+function applyFont(){ document.documentElement.style.setProperty("--fs", (S.fs||16)+"px"); }
+
+document.addEventListener("click", function(e){
+  var id = e.target.id;
+  if(id === "th"){ var t = isDark() ? "light" : "dark"; document.documentElement.dataset.theme = t; S.theme = t; save(); render(); }
+  if(id === "fm"){ S.fs = Math.max(14, (S.fs||16)-2); save(); applyFont(); }
+  if(id === "fp"){ S.fs = Math.min(22, (S.fs||16)+2); save(); applyFont(); }
+  if(id === "st") openOnb();
+
+  var tb = e.target.closest && e.target.closest("[data-th]");
+  if(tb){
+    var tv = tb.dataset.th;
+    if(tv === "auto"){ delete S.theme; delete document.documentElement.dataset.theme; }
+    else { S.theme = tv; document.documentElement.dataset.theme = tv; }
+    save(); render();
+  }
+
+  var hb = e.target.closest && e.target.closest(".hp");
+  if(hb){
+    if(hb.dataset.sure !== "1"){
+      document.querySelectorAll(".hp").forEach(function(b){ b.dataset.sure="1"; b.textContent="⚠️ Klik Sekali Lagi untuk Hapus Semua Data"; });
+      setTimeout(function(){ document.querySelectorAll(".hp").forEach(function(b){ b.dataset.sure=""; b.textContent="🗑️ Hapus Data Perangkat"; }); }, 4000);
+    } else {
+      S = { checks:{}, ilog:[], log:[], day:today }; save();
+      var d = $("#onb"); if(d.open) d.close();
+      render(); openOnb();
+    }
+  }
+});
+
+function openOnb(){
+  $("#oname").value = S.name || "";
+  $("#obk").value = S.bk || "";
+  $("#odate").value = S.start || "";
+  var d = $("#onb"); if(d.showModal && !d.open) d.showModal();
+}
+
+$("#osave").onclick = function(){
+  S.name = $("#oname").value.trim();
+  S.bk = $("#obk").value.trim().replace(",",".");
+  S.start = $("#odate").value;
+  S.seen = 1; save();
+  $("#onb").close(); render();
+};
+$("#oskip").onclick = function(){ S.seen = 1; save(); $("#onb").close(); };
+
+var hist = [], URG = /nyeri dada|sesak hebat|sesak napas|pingsan|demam tinggi|perdarahan hebat|berdarah banyak|tidak sadar|kejang|bunuh diri/i;
+
+function initChat(){
+  var chat = $("#chat");
+  chat.innerHTML = "";
+  hist.forEach(function(m){ bubble(m.role==="user"?"u":"a", m.content); });
+
+  function bubble(c,t){
+    var d = document.createElement("div");
+    d.className = "m "+c; d.textContent = t;
+    chat.appendChild(d);
+    d.scrollIntoView({ behavior:"smooth", block:"nearest" });
+    return d;
+  }
+
+  async function send(q){
+    if(!q.trim()) return;
+    $("#sg").style.display = "none";
+    bubble("u", q);
+    hist.push({ role: "user", content: q });
+    $("#ci").value = "";
+
+    if(URG.test(q)){
+      var u = "🚨 PERINGATAN DARURAT MEDIS:\nGejala yang Anda sampaikan (seperti sesak napas berat, nyeri dada, atau perdarahan) memerlukan penanganan medis SEGERA.\n\nMohon segera hubungi Unit Hemodialisis Anda atau datang ke IGD Rumah Sakit terdekat! Asisten AI ini hanya untuk edukasi rutin, bukan untuk darurat medis. 💚";
+      var b = bubble("a", u);
+      b.style.borderLeft = "4px solid var(--dg)";
+      hist.push({ role: "assistant", content: u });
+      return;
+    }
+
+    var w = document.createElement("div");
+    w.className = "m a dots";
+    w.innerHTML = "<span></span><span></span><span></span>";
+    chat.appendChild(w);
+
+    try {
+      var sample = window.claude ? await claude.use("sample") : null;
+      if(!sample) throw { code: "none" };
+
+      var sysPrompt = "Anda adalah Asisten Klinis Edukasi Nefrologi (Hemodialisis) yang berpatokan pada sistem manajemen cairan dr. Puguh Widagdo, SpPD-FINASIM.\n"+
+        "ATURAN KALKULASI & ADVIS:\n"+
+        "1. Rumus Cairan = Volume Urine 24 jam + 500-750 mL (IWL).\n"+
+        "2. Anuria (0 mL urine) -> Batas ketat 500-750 mL/hari.\n"+
+        "3. Haus dipicu GARAM (Natrium), bukan kurang minum. Sarankan teknik botol takar, lemon dingin, kulum es batu, & berkumur air dingin tanpa menelan.\n"+
+        "4. IDWG maksimal 3-5% Dry Weight. IDWG > 5% / > 2kg dalam 2 hari adalah TANDA BAHAYA EDEMA PARU.\n"+
+        "5. Selalu gunakan bahasa Indonesia yang tenang, empatik, singkat (max 4-5 kalimat), dan sertakan disclaimer wajib: '⚕️ Catatan: Penyesuaian target cairan & dry weight harus diverifikasi oleh dr. Puguh Widagdo, SpPD - FINASIM saat sesi hemodialisis.'";
+
+      var msgs = [{ role: "user", content: sysPrompt + "\n\nRiwayat Chat:\n" + hist.slice(-6,-1).map(function(m){ return m.role+": "+m.content; }).join("\n") + "\n\nPertanyaan Pasien: " + q }];
+      var r = await sample(msgs, { cache: false });
+      w.remove();
+      bubble("a", r.text);
+      hist.push({ role: "assistant", content: r.text });
+    } catch(err) {
+      w.remove();
+      var fallback = "Terima kasih atas pertanyaannya. Untuk batas cairan harian presisi: hitung sisa urine 24 jam Anda lalu tambahkan 500-750 mL (IWL). Bila mulut terasa kering, berkumurlah dengan air dingin (buang, jangan ditelan) atau kulum es batu kecil.\n\n⚕️ Catatan: Penyesuaian target cairan & dry weight harus diverifikasi oleh dr. Puguh Widagdo, SpPD - FINASIM saat sesi hemodialisis.";
+      bubble("a", fallback);
+    }
+  }
+
+  $("#cf").onsubmit = function(e){ e.preventDefault(); send($("#ci").value); };
+  document.querySelectorAll(".sug").forEach(function(b){ b.onclick = function(){ send(b.textContent); }; });
+}
+
+if(S.theme) document.documentElement.dataset.theme = S.theme;
+applyFont();
+window.addEventListener("hashchange", render);
+render();
+if(!S.seen) setTimeout(openOnb, 400);
+})();
+</script>
+</body>
+</html>
